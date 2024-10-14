@@ -32,3 +32,22 @@ exports.postCourse=async (req, res)=>{
         res.status(500).json({ message: "Error placing order", error });
     }
 }
+
+
+exports.deleteCourse = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the ID from the request parameters
+
+    // Find the announcement by ID and delete it
+    const deletedCourse = await Course.findByIdAndDelete(id);
+
+    if (!deletedCourse) {
+      return res.status(404).json({ message: "Announcement not found" });
+    }
+
+    res.status(200).json({ message: "Announcement deleted successfully", deletedCourse });
+  } catch (error) {
+    console.error('Error deleting announcement:', error); // Log error
+    res.status(500).json({ message: "Error deleting announcement", error });
+  }
+};
