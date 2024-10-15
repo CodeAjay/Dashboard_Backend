@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const courseController = require("../controllers/course");
 
-const courses=require("../controllers/course")
-
-router.post("/", courses.postCourse); // Only authenticated users can place orders
-router.get("/", courses.getCourses); // Admin can view all orders
-
+router.post("/", courseController.postCourses);
+router.get("/", courseController.getCourses);
+router.put("/:id", courseController.editCourse);
+router.delete("/:id", courseController.deleteCourse);
 
 module.exports = router;

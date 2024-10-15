@@ -14,9 +14,11 @@ app.use(bodyParser.json());
 
 const announceRoutes=require("./routes/announceRoutes")
 const courseRoutes=require("./routes/coursesRoutes")
+const studentRoutes=require("./routes/studentsRoutes")
 
 app.use("/announcements", announceRoutes)
 app.use("/courses", courseRoutes)
+app.use("/students", studentRoutes)
 
 
 app.listen(port, () => {

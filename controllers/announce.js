@@ -19,20 +19,20 @@ exports.postAnnouncements= async (req, res)=>{
     try{
     const {title, description}=req.body;
 
-    
+    // console.log(title, description)
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
     const currentDate = new Date().toLocaleDateString(undefined, options);
-    
+    const formatedDate=new Date(currentDate.split('/').reverse().join('-'))
     const time = `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`;
 
     const an= new Announce({
         title,
         description, 
-        date: currentDate, 
+        date: formatedDate, 
         time: time, 
     })
     await an.save();
-    res.status(201).json({ message: "Order placed successfully", an });
+    res.status(201).json(an);
     } catch(error){
         console.error('Error placing order:', error); // Log error
         res.status(500).json({ message: "Error placing order", error });
