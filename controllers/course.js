@@ -48,6 +48,7 @@ exports.editCourse = async (req, res) => {
     if (!updatedCourse) {
       return res.status(404).json({ message: "Course not found" });
     }
+<<<<<<< HEAD
 
     res.status(200).json({ message: "Course updated successfully", updatedCourse });
   } catch (error) {
@@ -70,5 +71,25 @@ exports.deleteCourse = async (req, res) => {
   } catch (error) {
     console.error("Error deleting course:", error);
     res.status(500).json({ message: "Error deleting course", error });
+=======
+}
+
+
+exports.deleteCourse = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the ID from the request parameters
+
+    // Find the announcement by ID and delete it
+    const deletedCourse = await Course.findByIdAndDelete(id);
+
+    if (!deletedCourse) {
+      return res.status(404).json({ message: "Announcement not found" });
+    }
+
+    res.status(200).json({ message: "Announcement deleted successfully", deletedCourse });
+  } catch (error) {
+    console.error('Error deleting announcement:', error); // Log error
+    res.status(500).json({ message: "Error deleting announcement", error });
+>>>>>>> b82a7f36c33a593168df55dca65555cc27aab09a
   }
 };
