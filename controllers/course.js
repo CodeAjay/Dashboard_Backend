@@ -2,7 +2,9 @@ const Course = require("../models/course");
 
 exports.getCourses = async (req, res) => {
   try {
-    const courses = await Course.find();
+    // Use populate to get the institute name along with the course data
+    const courses = await Course.find().populate("institute_id", "institute_name"); // Change "institute_name" to the actual field name in your Institute model
+
     res.status(200).json(courses);
   } catch (error) {
     console.error("Error fetching courses:", error);
@@ -12,13 +14,14 @@ exports.getCourses = async (req, res) => {
 
 exports.postCourses = async (req, res) => {
   try {
-    const { title, institute, studentsEnrolled, fee } = req.body;
+    const { courseName,imageUrl, institute_id, studentsEnrolled, totalFee } = req.body;
 
     const newCourse = new Course({
-      title,
-      institute,
+      courseName,
+      imageUrl, 
+      institute_id,
       studentsEnrolled,
-      fee,
+      totalFee,
     });
 
     await newCourse.save();
@@ -32,23 +35,23 @@ exports.postCourses = async (req, res) => {
 exports.editCourse = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, institute, studentsEnrolled, fee } = req.body;
+    const { courseName, imageUrl, institute_id, studentsEnrolled, totalFee } = req.body;
 
     const updatedCourse = await Course.findByIdAndUpdate(
       id,
       {
-        title,
-        institute,
+        courseName,
+        imageUrl,
+        institute_id,
         studentsEnrolled,
-        fee,
+        totalFee,
       },
-      { new: true }
-    );
+      { new: true } // Return the updated document
+    ).populate("institute_id", "institute_name"); // Populate the institute name
 
     if (!updatedCourse) {
       return res.status(404).json({ message: "Course not found" });
     }
-<<<<<<< HEAD
 
     res.status(200).json({ message: "Course updated successfully", updatedCourse });
   } catch (error) {
@@ -56,6 +59,7 @@ exports.editCourse = async (req, res) => {
     res.status(500).json({ message: "Error updating course", error });
   }
 };
+
 
 exports.deleteCourse = async (req, res) => {
   try {
@@ -71,9 +75,9 @@ exports.deleteCourse = async (req, res) => {
   } catch (error) {
     console.error("Error deleting course:", error);
     res.status(500).json({ message: "Error deleting course", error });
-=======
-}
 
+}
+}
 
 exports.deleteCourse = async (req, res) => {
   try {
@@ -90,6 +94,5 @@ exports.deleteCourse = async (req, res) => {
   } catch (error) {
     console.error('Error deleting announcement:', error); // Log error
     res.status(500).json({ message: "Error deleting announcement", error });
->>>>>>> b82a7f36c33a593168df55dca65555cc27aab09a
   }
-};
+}
