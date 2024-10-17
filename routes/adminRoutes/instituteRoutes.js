@@ -1,18 +1,11 @@
-// routes/institute.js
 const express = require("express");
-const Institute = require("../../models/institute");
-
 const router = express.Router();
+const institutes = require("../../controllers/institutes");
 
-// GET all institutes
-router.get("/", async (req, res) => {
-  try {
-    const institutes = await Institute.find();
-    res.json(institutes);
-  } catch (error) {
-    console.error("Error retrieving institutes:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+router.get("/", institutes.getInstitutes);
+router.post("/", institutes.createInstitute);
+// router.get("/payment-status/:month", feeCollection.getFeeCollectionById);
+// router.put("/:id", courseController.editCourse);
+// router.delete("/:id", feeCollection.deleteFeeCollection);
 
 module.exports = router;
