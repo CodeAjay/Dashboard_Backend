@@ -1,4 +1,3 @@
-// models/FeeCollection.js
 const mongoose = require("mongoose");
 
 const FeeCollectionSchema = new mongoose.Schema({

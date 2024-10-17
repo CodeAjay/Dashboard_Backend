@@ -2,7 +2,7 @@ const Student = require("../models/student")
 
 exports.getStudents=async (req, res)=>{
   try {
-    const students = await Student.find().populate("institute_id course_id");
+    const students = await Student.find().populate("institute_id course_id").sort({_id:-1});
     res.json(students);
   } catch (error) {
     console.error("Error retrieving students:", error);

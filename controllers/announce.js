@@ -6,7 +6,7 @@ exports.getAnnouncements=async(req, res)=>{
         // Check if the user is an admin
     
         let announce;
-        announce = await Announce.find();
+        announce = await Announce.find().sort({_id:-1});
     
         res.status(200).json(announce); 
       } catch (error) {

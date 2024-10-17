@@ -3,7 +3,7 @@ const Course = require("../models/course");
 exports.getCourses = async (req, res) => {
   try {
     // Use populate to get the institute name along with the course data
-    const courses = await Course.find().populate("institute_id", "institute_name"); // Change "institute_name" to the actual field name in your Institute model
+    const courses = await Course.find().populate("institute_id", "institute_name").sort({_id:-1}); // Change "institute_name" to the actual field name in your Institute model
 
     res.status(200).json(courses);
   } catch (error) {

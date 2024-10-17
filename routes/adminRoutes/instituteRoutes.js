@@ -1,6 +1,6 @@
 // routes/institute.js
 const express = require("express");
-const Institute = require("../models/institute");
+const Institute = require("../../models/institute");
 
 const router = express.Router();
 
