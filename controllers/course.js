@@ -25,7 +25,12 @@ exports.postCourses = async (req, res) => {
     });
 
     await newCourse.save();
-    res.status(201).json({ message: "Course created successfully", newCourse });
+
+    // Populate the institute_id and course_id after saving the student
+    const populatedCourse = await Course.findById(newCourse._id)
+    .populate("institute_id")
+
+    res.status(201).json(populatedCourse);
   } catch (error) {
     console.error("Error creating course:", error);
     res.status(500).json({ message: "Error creating course", error });
