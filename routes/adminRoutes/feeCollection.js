@@ -3,7 +3,7 @@ const router = express.Router();
 const feeCollection = require("../../controllers/feeCollection");
 
 router.post("/", feeCollection.createFeeCollection);
-router.get("/", feeCollection.getFeeCollection);
+router.post("/fees", feeCollection.getFeeCollection);
 router.get("/payment-status/:month", feeCollection.getFeeCollectionById);
 // router.put("/:id", courseController.editCourse);
 // router.delete("/:id", feeCollection.deleteFeeCollection);
