@@ -9,7 +9,10 @@ exports.getFeeCollection = async (req, res) => {
     const { from, to } = req.body;
 
     // Check if the dates are provided, else default to last 12 months
-    const toDate = to ? moment(to, ['DD-MM-YYYY', 'YYYY-MM-DD']).toDate() : new Date();
+    const toDate = to 
+      ? moment(to, ['DD-MM-YYYY', 'YYYY-MM-DD']).endOf('day').toDate() // Set to the last moment of the provided day
+      : new Date(); // Default to now if not provided
+
     const fromDate = from
       ? moment(from, ['DD-MM-YYYY', 'YYYY-MM-DD']).toDate()
       : moment(toDate).subtract(12, 'months').toDate(); // Last 12 months if 'from' not provided
@@ -27,9 +30,32 @@ exports.getFeeCollection = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: 'students', // Assuming the collection name is 'students'
+          localField: 'student_id', // Field in FeeCollection
+          foreignField: '_id', // Field in Students collection
+          as: 'student_details', // Name of the new array field
+        },
+      },
+      {
+        $unwind: { // Flatten the array to get individual student details
+          path: '$student_details',
+          preserveNullAndEmptyArrays: true // Keep records even if no matching student
+        }
+      },
+      {
         $group: {
           _id: { $dateToString: { format: "%Y-%m", date: "$payment_date" } }, // Group by month
           monthly_fee_collected: { $sum: "$amount_paid" }, // Sum of fees collected in that month
+          payments: {
+            $push: { // Collect detailed payment records
+              studentId: "$student_id",
+              studentName: { $concat: ["$student_details.firstName", " ", "$student_details.lastName"] }, // Assuming you have firstName and lastName fields
+              amountPaid: "$amount_paid",
+              paymentDate: "$payment_date",
+              paymentMethod: "$payment_method", // Adjust based on your FeeCollection schema
+            }
+          }
         },
       },
       {
@@ -57,6 +83,7 @@ exports.getFeeCollection = async (req, res) => {
 
 
 
+
 // GET /api/fee-collection/payment-status/:month
 // GET /api/fee-collection/payment-status/:month
 exports.getFeeCollectionById = async (req, res) => {
@@ -71,6 +98,8 @@ exports.getFeeCollectionById = async (req, res) => {
     // Get all students
     const students = await Student.find().populate("institute_id course_id");
 
+    // console.log(students[0]._id, "students")
+
     // Get the fee collection records for the specified month
     const feeCollections = await FeeCollection.find({
       payment_date: {
@@ -78,10 +107,18 @@ exports.getFeeCollectionById = async (req, res) => {
         $lt: endDate
       }
     }).populate("student_id");
+
     // console.log(feeCollections,"feeCollections")
-    // Create a set of paid student IDs
-    const paidStudentIds = new Set(feeCollections.map(fee => fee.student_id._id.toString()));
-    // console.log(paidStudentIds, "paidStudentIds")
+
+    // Create a set of paid student IDs, but only for those with valid `student_id`
+    const paidStudentIds = new Set(
+      feeCollections
+        .filter(fee => fee.student_id) // Only include records with non-null `student_id`
+        .map(fee => fee.student_id._id.toString())
+    );
+
+    console.log(paidStudentIds,"paidStudentIds")
+
     // Separate students into paid and not paid
     const paidStudents = [];
     const notPaidStudents = [];
@@ -101,6 +138,7 @@ exports.getFeeCollectionById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 
