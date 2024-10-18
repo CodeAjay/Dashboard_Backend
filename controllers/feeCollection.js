@@ -16,20 +16,44 @@ exports.getFeeCollection = async (req, res) => {
 
     console.log("Querying for fee collections from:", fromDate, "to:", toDate);
 
-    const result = await FeeCollection.find({
-      payment_date: {
-        $gte: fromDate,
-        $lte: toDate,
+    // Aggregation pipeline to group by month and calculate the total collection for each month
+    const result = await FeeCollection.aggregate([
+      {
+        $match: {
+          payment_date: {
+            $gte: fromDate,
+            $lte: toDate,
+          },
+        },
       },
-    });
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m", date: "$payment_date" } }, // Group by month
+          monthly_fee_collected: { $sum: "$amount_paid" }, // Sum of fees collected in that month
+        },
+      },
+      {
+        $sort: { _id: 1 }, // Sort by month (ascending)
+      },
+    ]);
 
-    // Return the result
-    res.json(result);
+    // Calculate the total fee collected for the entire period
+    const totalFeeCollected = result.reduce(
+      (total, month) => total + month.monthly_fee_collected,
+      0
+    );
+
+    // Return the result with monthly collections and total collection
+    res.json({
+      totalFeeCollected,
+      monthlyCollections: result,
+    });
   } catch (error) {
     console.error("Error retrieving fee collection:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 

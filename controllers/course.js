@@ -1,14 +1,33 @@
 const Course = require("../models/course");
+const Student = require('../models/student');
 
 exports.getCourses = async (req, res) => {
   try {
-    // Use populate to get the institute name along with the course data
-    const courses = await Course.find().populate("institute_id", "institute_name").sort({_id:-1}); // Change "institute_name" to the actual field name in your Institute model
+    const courses = await Course.find().populate('institute_id', 'institute_name');
 
-    res.status(200).json(courses);
+    // Count students for each course
+    const studentCounts = await Student.aggregate([
+      {
+        $group: {
+          _id: "$course_id",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Map the student counts to their respective courses
+    const coursesWithCount = courses.map(course => {
+      const studentCount = studentCounts.find(sc => sc._id.toString() === course._id.toString());
+      return {
+        ...course._doc,
+        studentsEnrolled: studentCount ? studentCount.count : 0,
+      };
+    });
+
+    res.status(200).json(coursesWithCount);
   } catch (error) {
-    console.error("Error fetching courses:", error);
-    res.status(500).json({ message: "Error fetching courses", error });
+    console.error("Error fetching courses with student count:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 

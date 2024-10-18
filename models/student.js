@@ -5,6 +5,7 @@ const studentSchema = new Schema({
   name:{type: String, required: true}, 
   fathersName: {type: String},
   mobile: Number,
+  DOB: Date,
   email:{type: String, required: true, unique: true}, 
   imageUrl: {type: String},
   institute_id: {
