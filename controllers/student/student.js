@@ -40,10 +40,7 @@ exports.getStudentCourseDetails = async (req, res) => {
     // Total and pending fee
     const totalFee = course.totalFee;
     const pendingFee = totalFee - totalPaid;
-
-    res.json({
-      success: true,
-      courseDetails: {
+    const courseDetails= {
         courseName: course.courseName,
         totalFee: totalFee,
         paidFee: totalPaid,
@@ -51,7 +48,7 @@ exports.getStudentCourseDetails = async (req, res) => {
         enrollmentDate: enrollmentDate.toDate(),
         courseEndDate: endDate.toDate()
       }
-    });
+    res.json(courseDetails);
 
   } catch (error) {
     console.error("Error fetching course details:", error);
