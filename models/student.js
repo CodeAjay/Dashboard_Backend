@@ -6,6 +6,7 @@ const studentSchema = new Schema({
   fathersName: {type: String},
   mobile: Number,
   DOB: Date,
+  address: String,
   email:{type: String, required: true, unique: true}, 
   imageUrl: {type: String},
   institute_id: {
@@ -18,7 +19,8 @@ const studentSchema = new Schema({
     ref: "Course",
     required: true
   },
-  fee: {type: Number, default:0}
+  fee: {type: Number, default:0},
+  enrollment_date: { type: Date}
 });
 
 module.exports = mongoose.model("Student", studentSchema);

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const institutes = require("../../controllers/institutes");
+const institutes = require("../../controllers/admin/institutes");
 
 router.get("/", institutes.getInstitutes);
 router.post("/", institutes.createInstitute);

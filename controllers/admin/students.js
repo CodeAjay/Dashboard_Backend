@@ -1,4 +1,4 @@
-const Student = require("../models/student")
+const Student = require("../../models/student")
 
 exports.getStudents = async (req, res) => {
   try {
@@ -18,7 +18,7 @@ exports.getStudents = async (req, res) => {
 
 exports.postStudents = async (req, res) => {
   try {
-      const { name, email, course_id, institute_id, fee, imageUrl } = req.body;
+      const { name, email, course_id, institute_id, fee, imageUrl, mobile, fathersName, address } = req.body;
 
       const student = new Student({
           name,
@@ -26,7 +26,9 @@ exports.postStudents = async (req, res) => {
           course_id,
           institute_id,
           fee,
-          imageUrl
+          imageUrl,
+          mobile, fathersName,
+          address
       });
 
       await student.save();
@@ -47,7 +49,7 @@ exports.postStudents = async (req, res) => {
 exports.editStudents=async(req, res)=>{
     try {
         const { id } = req.params;
-        const { name, email, institute_id, course_id, imageUrl } = req.body;
+        const { name, email, institute_id, course_id, imageUrl, mobile, fathersName, address } = req.body;
     
         const updatedStudent = await Student.findByIdAndUpdate(
           id,
@@ -57,6 +59,8 @@ exports.editStudents=async(req, res)=>{
             institute_id,
             course_id,
             imageUrl,
+            mobile, fathersName,
+            address
           },
           { new: true }
         );

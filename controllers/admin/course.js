@@ -1,9 +1,9 @@
-const Course = require("../models/course");
-const Student = require('../models/student');
+const Course = require("../../models/course");
+const Student = require('../../models/student');
 
 exports.getCourses = async (req, res) => {
   try {
-    const courses = await Course.find().populate('institute_id', 'institute_name');
+    const courses = await Course.find().populate('institute_id', 'institute_name').sort({ _id: -1 });;
 
     // Count students for each course
     const studentCounts = await Student.aggregate([

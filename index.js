@@ -17,12 +17,16 @@ const courseRoutes=require("./routes/adminRoutes/coursesRoutes")
 const studentRoutes=require("./routes/adminRoutes/studentsRoutes")
 const instituteRoutes=require("./routes/adminRoutes/instituteRoutes")
 const feeCollectionRoutes=require("./routes/adminRoutes/feeCollection")
+const students=require("./routes/studentsRoutes/student")
 
 app.use("/announcements", announceRoutes)
 app.use("/courses", courseRoutes)
 app.use("/students", studentRoutes)
 app.use("/institutes", instituteRoutes)
 app.use("/fee-collection", feeCollectionRoutes)
+
+
+app.use("/api", students)
 
 
 app.listen(port, () => {

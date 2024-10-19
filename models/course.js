@@ -9,6 +9,7 @@ const courseSchema = new Schema({
     ref: "Institute",
     required: true
   },
+  course_duration:Number,
   studentsEnrolled: {type: Number, default:0},
   totalFee: {type: Number, default:0}
 });

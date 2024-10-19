@@ -1,4 +1,4 @@
-const Institute = require("../models/institute");
+const Institute = require("../../models/institute");
 
 // GET all institutes
 exports.getInstitutes = async (req, res) => {

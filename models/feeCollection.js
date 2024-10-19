@@ -13,7 +13,8 @@ const FeeCollectionSchema = new mongoose.Schema({
   },
   amount_paid: {
     type: Number,
-    required: true
+    required: true,
+    min: 0 // Ensure amount is not negative
   },
   payment_date: {
     type: Date,
@@ -22,8 +23,13 @@ const FeeCollectionSchema = new mongoose.Schema({
   payment_method: {
     type: String,
     required: true
+  },
+  payment_status: {
+    type: String,
+    enum: ['completed', 'pending', 'failed'],
+    default: 'completed',
   }
-});
+}, { timestamps: true });
 
 const FeeCollection = mongoose.model("FeeCollection", FeeCollectionSchema);
 module.exports = FeeCollection;

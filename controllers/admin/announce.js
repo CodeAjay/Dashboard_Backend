@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Announce = require("../models/announcement")
+const Announce = require("../../models/announcement")
 
 exports.getAnnouncements=async(req, res)=>{
     try {

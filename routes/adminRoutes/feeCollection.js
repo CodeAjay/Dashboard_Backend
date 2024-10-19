@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const feeCollection = require("../../controllers/feeCollection");
+const feeCollection = require("../../controllers/admin/feeCollection");
 
 router.post("/", feeCollection.createFeeCollection);
 router.post("/fees", feeCollection.getFeeCollection);
