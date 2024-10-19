@@ -105,15 +105,14 @@ exports.getStudentPastPayments = async (req, res) => {
       });
 
       console.log(feeCollections)
+      
+      const pastpayment = feeCollections.map(payment => ({
+        amountPaid: payment.amount_paid,
+        paymentDate: moment(payment.payment_date).format('YYYY-MM-DD'), // Format the date
+        paymentMethod: payment.payment_method
+      }))
   
-      res.json({
-        success: true,
-        payments: feeCollections.map(payment => ({
-          amountPaid: payment.amount_paid,
-          paymentDate: moment(payment.payment_date).format('YYYY-MM-DD'), // Format the date
-          paymentMethod: payment.payment_method
-        }))
-      });
+      res.json(pastpayment);
   
     } catch (error) {
       console.error("Error fetching fee payments:", error);
