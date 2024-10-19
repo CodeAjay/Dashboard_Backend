@@ -244,6 +244,10 @@ exports.createFeeCollection = async (req, res) => {
     // Save the current payment
     await newFeeCollection.save();
 
+    // Update the student's total fee paid
+    student.fee = (student.totalFeePaid || 0) + amount_paid; // Assuming there's a totalFeePaid field
+    await student.save();
+
     // If the payment exceeds the monthly amount, create additional records for future months
     let remainingAmount = amount_paid - monthlyPaymentAmount;
 
