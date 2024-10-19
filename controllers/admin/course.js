@@ -33,7 +33,7 @@ exports.getCourses = async (req, res) => {
 
 exports.postCourses = async (req, res) => {
   try {
-    const { courseName,imageUrl, institute_id, studentsEnrolled, totalFee } = req.body;
+    const { courseName,imageUrl, institute_id, studentsEnrolled, totalFee,course_duration } = req.body;
 
     const newCourse = new Course({
       courseName,
@@ -41,6 +41,7 @@ exports.postCourses = async (req, res) => {
       institute_id,
       studentsEnrolled,
       totalFee,
+      course_duration
     });
 
     await newCourse.save();
@@ -59,7 +60,7 @@ exports.postCourses = async (req, res) => {
 exports.editCourse = async (req, res) => {
   try {
     const { id } = req.params;
-    const { courseName, imageUrl, institute_id, studentsEnrolled, totalFee } = req.body;
+    const { courseName, imageUrl, institute_id, studentsEnrolled, totalFee, course_duration } = req.body;
 
     const updatedCourse = await Course.findByIdAndUpdate(
       id,
@@ -69,6 +70,7 @@ exports.editCourse = async (req, res) => {
         institute_id,
         studentsEnrolled,
         totalFee,
+        course_duration
       },
       { new: true } // Return the updated document
     ).populate("institute_id", "institute_name"); // Populate the institute name

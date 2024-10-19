@@ -5,6 +5,7 @@ const moment = require('moment');
 
 
 // Get course details, including fees and payments
+// Get course details, including fees and payments
 exports.getStudentCourseDetails = async (req, res) => {
   const { studentId } = req.params;
 
@@ -35,19 +36,27 @@ exports.getStudentCourseDetails = async (req, res) => {
     });
 
     // Calculate the total paid fee during this period
-    const totalPaid = feeCollections.reduce((acc, fee) => acc + fee.amount_paid, 0);
+    const totalPaid = student.fee;
 
     // Total and pending fee
     const totalFee = course.totalFee;
     const pendingFee = totalFee - totalPaid;
-    const courseDetails= {
-        courseName: course.courseName,
-        totalFee: totalFee,
-        paidFee: totalPaid,
-        pendingFee: pendingFee,
-        enrollmentDate: enrollmentDate.toDate(),
-        courseEndDate: endDate.toDate()
-      }
+
+    // Course details including payment information
+    const courseDetails = {
+      courseName: course.courseName,
+      totalFee: totalFee,
+      paidFee: totalPaid,
+      pendingFee: pendingFee,
+      enrollmentDate: enrollmentDate.toDate(),
+      courseEndDate: endDate.toDate(),
+      payments: feeCollections.map(payment => ({
+        amountPaid: payment.amount_paid,
+        paymentDate: moment(payment.payment_date).format('YYYY-MM-DD'), // Format the date
+        paymentMethod: payment.payment_method
+      }))
+    };
+
     res.json(courseDetails);
 
   } catch (error) {
@@ -55,6 +64,7 @@ exports.getStudentCourseDetails = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
 
 
 
