@@ -28,19 +28,25 @@ exports.getStudentCourseDetails = async (req, res) => {
     // Calculate the course's end date based on the enrollment date and course duration
     const endDate = enrollmentDate.clone().add(course.course_duration, 'months');
 
+    const currentDate = new Date();
+        const monthsEnrolled = Math.floor((currentDate - enrollmentDate) / (1000 * 60 * 60 * 24 * 30)); // Approximate month calculation
+        console.log(monthsEnrolled,"monthsEnrolled for ", student.name)
+        // Calculate total fee due until the current month
+        const totalFeeDue = Math.min(monthsEnrolled, course.course_duration) * (course.totalFee / course.course_duration);
+        // console.log(totalFeeDue,"totalFeeDue for ", student.name)
+
     // Find fee collections between enrollment date and course end date
     const feeCollections = await FeeCollection.find({
       student_id: studentId,
       course_id: course._id,
-      payment_date: { $gte: enrollmentDate.toDate(), $lte: endDate.toDate() } // Use valid Date objects
+      payment_date: { $gte: enrollmentDate.toDate(), $lte: currentDate } // Use valid Date objects
     });
 
     // Calculate the total paid fee during this period
     const totalPaid = student.fee;
 
-    // Total and pending fee
+    const pendingFee = totalFeeDue - totalPaid;
     const totalFee = course.totalFee;
-    const pendingFee = totalFee - totalPaid;
 
     // Course details including payment information
     const courseDetails = {

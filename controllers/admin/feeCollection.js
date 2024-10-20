@@ -86,53 +86,96 @@ exports.getFeeCollection = async (req, res) => {
 
 // GET /api/fee-collection/payment-status/:month
 // GET /api/fee-collection/payment-status/:month
+
 exports.getFeeCollectionById = async (req, res) => {
   const month = req.params.month; // Expecting format YYYY-MM, e.g., '2023-10'
 
-  try {
-    // Parse the month into a start and end date
-    const startDate = new Date(`${month}-01`); // First day of the month
-    const endDate = new Date(`${month}-01`);
-    endDate.setMonth(endDate.getMonth() + 1); // First day of the next month
+  // Validate the provided month format
+  const dateParts = month.split('-');
+  if (dateParts.length !== 2) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid payment_date format. Please provide a valid date in YYYY-MM format."
+    });
+  }
 
-    // Get all students with their course details
-    const students = await Student.find().populate("institute_id course_id");
+  // Normalize the month and year
+  const year = parseInt(dateParts[0], 10);
+  const mon = parseInt(dateParts[1], 10); // Convert month to number
+
+  try {
+    // Create the start and end dates
+    const startDate = new Date(year, mon - 1, 1); // First day of the month
+    // Create the end date for the last day of the specified month
+    const endDate = new Date(year, mon, 0); // Last day of the month
+    // console.log("End Date:", endDate); // Log end date for debugging
+
+    // Calculate the start date as one year before the end date
+    const enStartDate = new Date(year-1, mon - 1, 1); // Create a new date object for the start date
+    // enStartDate.setFullYear(enStartDate.getFullYear() - 1); // Subtract 1 year
+    // console.log("Start Date (1 year before):", enStartDate); // Log the start date for debugging
+
+    // Fetch students whose enrollment date is between the calculated start and end dates
+    const students = await Student.find({
+      enrollment_date: { $gte: enStartDate, $lte: endDate } // Include students enrolled in the last year
+    }).populate("institute_id course_id");
+
+    // console.log("Students found:", students);
+
+
+    // Log the students for debugging
+    // console.log("Enrolled Students:", students);
 
     // Get the fee collection records for the specified month
     const feeCollections = await FeeCollection.find({
       payment_date: {
-        $gte: startDate,
-        $lt: endDate
+        $gte: startDate, // Start of the provided month
+        $lt: endDate     // End of the provided month (exclusive)
       }
     }).populate("student_id");
 
-    // Create a set of paid student IDs, but only for those with valid `student_id`
+    console.log("Fee Collections:", feeCollections);
+
+    // Create a set of paid student IDs based on the fee collection records
     const paidStudentIds = new Set(
       feeCollections
-        .filter(fee => fee.student_id) // Only include records with non-null `student_id`
+        .filter(fee => fee.student_id) // Only include records with valid `student_id`
         .map(fee => fee.student_id._id.toString())
     );
 
-    // Separate students into paid and not paid, calculate pending fees
+    // console.log()
+
+    // List of students who haven't paid and their pending fees
     const notPaidStudents = [];
 
     students.forEach(student => {
       if (!paidStudentIds.has(student._id.toString())) {
-        // Calculate the pending fee
         const course = student.course_id; // Get the course the student is enrolled in
-        const enrollmentDate = new Date(student.enrollment_date);
+        const enrollmentDate = new Date(student.enrollment_date); // Convert to Date object
+
+        // Calculate months enrolled based on enrollment date and course duration
         const currentDate = new Date();
-
-        // Calculate the elapsed months since enrollment
-        const monthsEnrolled = Math.ceil(
-          (currentDate.getTime() - enrollmentDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
-        );
-
-        // Calculate the total fee based on course duration and the months enrolled
+        const monthsEnrolled = Math.floor((currentDate - enrollmentDate) / (1000 * 60 * 60 * 24 * 30)); // Approximate month calculation
+        console.log(monthsEnrolled,"monthsEnrolled for ", student.name)
+        // Calculate total fee due until the current month
         const totalFeeDue = Math.min(monthsEnrolled, course.course_duration) * (course.totalFee / course.course_duration);
-        const pendingFee = totalFeeDue - student.fee;
+        // console.log(totalFeeDue,"totalFeeDue for ", student.name)
+        // Sum of payments made so far by the student
+        // Sum of payments made so far by the student
+        const totalPaid = feeCollections
+        .filter(fee => fee.student_id && fee.student_id._id && fee.student_id._id.toString() === student._id.toString()) // Ensure student_id exists and is valid
+        .reduce((sum, fee) => {
+          const amountPaid = fee.amount_paid || 0; // Default to 0 if amount_paid is undefined
+          return sum + amountPaid; // Sum the amounts
+        }, 0);
 
-        // Push student to not paid list if they owe a fee
+
+          // console.log(totalPaid,"totalPaid for ", student.name)
+
+        // Calculate the pending fee
+        const pendingFee = totalFeeDue - totalPaid;
+
+        // If there's a pending fee, add the student to the list
         if (pendingFee > 0) {
           notPaidStudents.push({
             student,
@@ -152,7 +195,6 @@ exports.getFeeCollectionById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 
 

@@ -18,7 +18,7 @@ exports.getStudents = async (req, res) => {
 
 exports.postStudents = async (req, res) => {
   try {
-      const { name, email, course_id, institute_id, fee, imageUrl, mobile, fathersName, address } = req.body;
+      const { name, email, course_id, institute_id, fee, imageUrl, mobile, fathersName, address, enrollment_date } = req.body;
 
       const student = new Student({
           name,
@@ -28,7 +28,7 @@ exports.postStudents = async (req, res) => {
           fee,
           imageUrl,
           mobile, fathersName,
-          address
+          address,enrollment_date
       });
 
       await student.save();
@@ -49,7 +49,7 @@ exports.postStudents = async (req, res) => {
 exports.editStudents=async(req, res)=>{
     try {
         const { id } = req.params;
-        const { name, email, institute_id, course_id, imageUrl, mobile, fathersName, address } = req.body;
+        const { name, email, institute_id, course_id, imageUrl, mobile, fathersName, address, enrollment_date} = req.body;
     
         const updatedStudent = await Student.findByIdAndUpdate(
           id,
@@ -60,7 +60,7 @@ exports.editStudents=async(req, res)=>{
             course_id,
             imageUrl,
             mobile, fathersName,
-            address
+            address,enrollment_date
           },
           { new: true }
         );
