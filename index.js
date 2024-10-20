@@ -31,7 +31,8 @@ app.use("/institutes", authenticate, authorizeRoles("admin"), instituteRoutes);
 app.use("/fee-collection", authenticate, authorizeRoles("admin", "clerk"), feeCollectionRoutes); // Admin and clerk
 
 
-app.use("/api", students)
+// Students Routes
+app.use("/api", authenticate, authorizeRoles("admin", "clerk"), students)
 
 
 app.listen(port, () => {
