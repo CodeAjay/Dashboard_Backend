@@ -20,7 +20,7 @@ exports.getStudentCourseDetails = async (req, res) => {
     const course = student.course_id;
 
     // Validate and parse the enrollment date
-    const enrollmentDate = moment(student.enrollmentDate);
+    const enrollmentDate = moment(student.enrollment_date);
     if (!enrollmentDate.isValid()) {
       return res.status(400).json({ success: false, message: 'Invalid enrollment date' });
     }
