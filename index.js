@@ -24,15 +24,15 @@ const students=require("./routes/studentsRoutes/student")
 app.use("/login", loginRoute); // Public route to log in
 
 // Admin-only routes
-app.use("/announcements", announceRoutes);
-app.use("/courses", courseRoutes);
-app.use("/students", studentRoutes); // Admin and clerk
-app.use("/institutes", instituteRoutes);
-app.use("/fee-collection", feeCollectionRoutes); // Admin and clerk
+app.use("/announcements", authenticate, authorizeRoles("admin"), announceRoutes);
+app.use("/courses", authenticate, authorizeRoles("admin"), courseRoutes);
+app.use("/students", authenticate, authorizeRoles("admin"), studentRoutes); // Admin and clerk
+app.use("/institutes", authenticate, authorizeRoles("admin"), instituteRoutes);
+app.use("/fee-collection", authenticate, authorizeRoles("admin"), feeCollectionRoutes); // Admin and clerk
 
 
 // Students Routes
-app.use("/api", students)
+app.use("/api", authenticate, authorizeRoles("student"), students)
 
 
 app.listen(port, () => {

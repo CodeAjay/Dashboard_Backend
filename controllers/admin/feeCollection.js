@@ -134,7 +134,7 @@ exports.getFeeCollectionById = async (req, res) => {
       }
     }).populate("student_id");
 
-    console.log("Fee Collections:", feeCollections);
+    // console.log("Fee Collections:", feeCollections);
 
     // Create a set of paid student IDs based on the fee collection records
     const paidStudentIds = new Set(
@@ -154,26 +154,26 @@ exports.getFeeCollectionById = async (req, res) => {
         const enrollmentDate = new Date(student.enrollment_date); // Convert to Date object
 
         // Calculate months enrolled based on enrollment date and course duration
-        const currentDate = new Date();
-        const monthsEnrolled = Math.floor((currentDate - enrollmentDate) / (1000 * 60 * 60 * 24 * 30)); // Approximate month calculation
-        console.log(monthsEnrolled,"monthsEnrolled for ", student.name)
+        // const currentDate = new Date();
+        const monthsEnrolled = Math.floor((endDate - enrollmentDate) / (1000 * 60 * 60 * 24 * 30)); // Approximate month calculation
+        // console.log(monthsEnrolled,"monthsEnrolled for ", student.name)
         // Calculate total fee due until the current month
         const totalFeeDue = Math.min(monthsEnrolled, course.course_duration) * (course.totalFee / course.course_duration);
         // console.log(totalFeeDue,"totalFeeDue for ", student.name)
         // Sum of payments made so far by the student
         // Sum of payments made so far by the student
-        const totalPaid = feeCollections
-        .filter(fee => fee.student_id && fee.student_id._id && fee.student_id._id.toString() === student._id.toString()) // Ensure student_id exists and is valid
-        .reduce((sum, fee) => {
-          const amountPaid = fee.amount_paid || 0; // Default to 0 if amount_paid is undefined
-          return sum + amountPaid; // Sum the amounts
-        }, 0);
+        // const totalPaid = feeCollections
+        // .filter(fee => fee.student_id && fee.student_id._id && fee.student_id._id.toString() === student._id.toString()) // Ensure student_id exists and is valid
+        // .reduce((sum, fee) => {
+        //   const amountPaid = fee.amount_paid || 0; // Default to 0 if amount_paid is undefined
+        //   return sum + amountPaid; // Sum the amounts
+        // }, 0);
 
 
           // console.log(totalPaid,"totalPaid for ", student.name)
 
         // Calculate the pending fee
-        const pendingFee = totalFeeDue - totalPaid;
+        const pendingFee = totalFeeDue - student.fee;
 
         // If there's a pending fee, add the student to the list
         if (pendingFee > 0) {
