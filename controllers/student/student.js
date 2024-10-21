@@ -30,7 +30,7 @@ exports.getStudentCourseDetails = async (req, res) => {
 
     const currentDate = new Date();
         const monthsEnrolled = Math.floor((currentDate - enrollmentDate) / (1000 * 60 * 60 * 24 * 30)); // Approximate month calculation
-        console.log(monthsEnrolled,"monthsEnrolled for ", student.name)
+        // console.log(monthsEnrolled,"monthsEnrolled for ", student.name)
         // Calculate total fee due until the current month
         const totalFeeDue = Math.min(monthsEnrolled, course.course_duration) * (course.totalFee / course.course_duration);
         // console.log(totalFeeDue,"totalFeeDue for ", student.name)
@@ -100,8 +100,8 @@ exports.getStudentPastPayments = async (req, res) => {
       const endDate = enrollmentDate.clone().add(course.course_duration, 'months');
   
       // Log the dates for debugging
-      console.log('Enrollment Date:', enrollmentDate.format());
-      console.log('End Date:', endDate.format());
+      // console.log('Enrollment Date:', enrollmentDate.format());
+      // console.log('End Date:', endDate.format());
   
       // Find all fee collections for this student between the enrollment and course end dates
       const feeCollections = await FeeCollection.find({
@@ -110,7 +110,7 @@ exports.getStudentPastPayments = async (req, res) => {
         payment_date: { $gte: enrollmentDate.toDate(), $lte: endDate.toDate() } // Convert moment objects to Date
       });
 
-      console.log(feeCollections)
+      // console.log(feeCollections)
       
       const pastpayment = feeCollections.map(payment => ({
         amountPaid: payment.amount_paid,
