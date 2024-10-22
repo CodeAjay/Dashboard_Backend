@@ -12,6 +12,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  institute_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Institute",
+    required: true
+  },
   role: {
     type: String,
     enum: ['admin', 'clerk'], // Only allow admin or clerk roles

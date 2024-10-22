@@ -5,6 +5,41 @@ const bcrypt = require('bcryptjs');
 const User = require('../../models/user'); // Admin/Clerk model
 const Student = require('../../models/student'); // Student model
 
+// Register route for admin and clerk
+router.post('/register', async (req, res) => {
+  const { username, password, role, institute_id } = req.body;
+
+  try {
+    // Check if the role is valid ('admin' or 'clerk')
+    if (!['admin', 'clerk'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role. Must be admin or clerk.' });
+    }
+
+    // Check if the username already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+
+    // Create a new user instance
+    const newUser = new User({
+      username,
+      password,
+      role, 
+      institute_id
+    });
+
+    // Save the user to the database
+    await newUser.save();
+
+    res.status(201).json({ message: 'User registered successfully', user: newUser });
+  } catch (error) {
+    console.error('Error during registration:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 // Login route
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;

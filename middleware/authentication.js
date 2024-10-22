@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/user'); // Import the User model
 
-exports.authenticate = (req, res, next) => {
+exports.authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   // Check if the Authorization header exists
@@ -18,15 +19,24 @@ exports.authenticate = (req, res, next) => {
   try {
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Attach the decoded information (user details) to the request object
-    req.user = decoded;
+    // console.log(decoded,"decoded")
+    // Fetch full user details from the database
+    const user = await User.findById(decoded.id);
+    // console.log(user, "user")
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    // Attach the full user details to the request object
+    req.user = user;
 
     next(); // Proceed to the next middleware or route handler
   } catch (err) {
+    console.error('Error verifying token:', err);
     return res.status(401).json({ message: 'Invalid token' });
   }
 };
+
 
 // Role verification middleware
 exports.authorizeRoles = (...roles) => {
