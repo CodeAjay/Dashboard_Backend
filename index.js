@@ -40,14 +40,14 @@ app.use("/fee-collection", authenticate, authorizeRoles('admin'), feeCollectionR
 const clerkannounceRoutes=require("./routes/clerkRoutes/announcementRoutes")
 const clerkCourseRoutes=require("./routes/clerkRoutes/coursesRoutes")
 const clerkStudentRoutes=require("./routes/clerkRoutes/studentRoutes")
-// const clerkinstituteRoutes=require("./routes/clerkRoutes/institutes")
+const clerkinstituteRoutes=require("./routes/clerkRoutes/institutesRoutes")
 const clerkFeeCollectionRoutes=require("./routes/clerkRoutes/feeRoutes")
 
 // Clerk routes
 app.use("/clerk/announcements", authenticate, authorizeRoles("clerk"), clerkannounceRoutes);
 app.use("/clerk/courses", authenticate, authorizeRoles("clerk"), clerkCourseRoutes);
 app.use("/clerk/students", authenticate, authorizeRoles("clerk"), clerkStudentRoutes); // Admin and clerk
-// app.use("/clerk/institutes", authenticate, authorizeRoles("clerk"), clerkinstituteRoutes);
+app.use("/clerk/institutes", authenticate, authorizeRoles("clerk"), clerkinstituteRoutes);
 app.use("/clerk/fee-collection", authenticate, authorizeRoles("clerk"), clerkFeeCollectionRoutes); // Admin and clerk
 
 
