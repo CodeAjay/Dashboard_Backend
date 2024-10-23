@@ -154,8 +154,8 @@ exports.getFeeCollectionById = async (req, res) => {
         const enrollmentDate = new Date(student.enrollment_date); // Convert to Date object
 
         // Calculate months enrolled based on enrollment date and course duration
-        const currentDate = new Date();
-        const monthsEnrolled = Math.floor((currentDate - enrollmentDate) / (1000 * 60 * 60 * 24 * 30)); // Approximate month calculation
+        // const currentDate = new Date();
+        const monthsEnrolled = Math.floor((endDate - enrollmentDate) / (1000 * 60 * 60 * 24 * 30)); // Approximate month calculation
         // console.log(monthsEnrolled,"monthsEnrolled for ", student.name)
         // Calculate total fee due until the current month
         const totalFeeDue = Math.min(monthsEnrolled, course.course_duration) * (course.totalFee / course.course_duration);
