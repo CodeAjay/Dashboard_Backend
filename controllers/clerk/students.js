@@ -66,10 +66,10 @@ exports.editStudents = async (req, res) => {
   try {
     const { user } = req; // Assuming user is attached to req by middleware
     const { id } = req.params;
-
+    // console.log(user, "user after auth")
     // Check if the student belongs to the clerk's institute
     const student = await Student.findById(id);
-    if (user.role === "clerk" && student.institute_id.toString() !== user.institute_id) {
+    if (user.role === "clerk" && student.institute_id.toString() !== user.institute_id.toString()) {
       return res.status(403).json({ message: "Unauthorized to edit this student" });
     }
 
@@ -113,7 +113,7 @@ exports.deleteStudents = async (req, res) => {
 
     // Check if the student belongs to the clerk's institute
     const student = await Student.findById(id);
-    if (user.role === "clerk" && student.institute_id.toString() !== user.institute_id) {
+    if (user.role === "clerk" && student.institute_id.toString() !== user.institute_id.toString()) {
       return res.status(403).json({ message: "Unauthorized to delete this student" });
     }
 

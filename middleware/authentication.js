@@ -20,10 +20,10 @@ exports.authenticate = async (req, res, next) => {
   try {
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded,"decoded")
+    // console.log(decoded,"decoded")
     // Fetch full user details from the database
     const user = decoded.role=="student"?await Student.findById(decoded.id):await User.findById(decoded.id);
-    console.log(user, "user")
+    // console.log(user, "user")
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }
