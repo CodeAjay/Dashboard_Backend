@@ -317,3 +317,74 @@ exports.createFeeCollection = async (req, res) => {
     return res.status(500).json({ success: false, message: "Failed to create fee collection" });
   }
 };
+
+
+
+exports.getFeeDetailsByStudent = async (req, res) => {
+  const studentId = req.params.id;
+
+  // console.log(studentId, "student id")
+  try {
+    // Find the student and populate the course details
+    const student = await Student.findById(studentId).populate("course_id").populate("institute_id");
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    // Extract relevant details from the student
+    const enrollmentDate = moment(student.enrollment_date);
+    const courseDuration = student.course_id.course_duration; // Course duration in months
+    const courseEndDate = moment(enrollmentDate).add(courseDuration, 'months'); // Calculate the course end date
+    const currentDate = moment(); // Current date
+
+    // Initialize an empty array to store fee details for each month
+    const feeDetails = [];
+
+    
+    const monthsEnrolled = Math.floor((new Date() - enrollmentDate) / (1000 * 60 * 60 * 24 * 30));
+    // console.log(monthsEnrolled, "monthsEnrolled")
+    const dueFee = Math.min(monthsEnrolled, student.course_id.course_duration) * ((student.course_id.totalFee)/(student.course_id.course_duration));
+    // console.log(dueFee, " is total due Fee  and total paid is ", student.fee)
+    // Iterate over each month from the enrollment date to the current date or course end date (whichever is earlier)
+    let month = enrollmentDate.clone();
+    while (month.isBefore(moment.min(currentDate, courseEndDate), 'month')) {
+      const startOfMonth = month.clone().startOf('month').toDate();
+      const endOfMonth = month.clone().endOf('month').toDate();
+
+      // Check if payment has been made for the current month
+      const feeRecord = await FeeCollection.findOne({
+        student_id: studentId,
+        payment_date: {
+          $gte: startOfMonth,
+          $lte: endOfMonth
+        }
+      });
+
+      // Calculate the monthly fee amount
+      const monthlyFeeAmount = student.course_id.totalFee / courseDuration;
+
+      // If feeRecord exists, the fee was paid, otherwise, it's unpaid
+      feeDetails.push({
+        month: month.format("YYYY-MM"),
+        feePaid: feeRecord ? true : false,
+        amountPaid: feeRecord ? feeRecord.amount_paid : 0,
+        monthlyFeeAmount,
+        pendingFee: feeRecord ? 0 : monthlyFeeAmount,
+      });
+
+      // Move to the next month
+      month.add(1, 'month');
+    }
+
+    // Return the result
+    res.json({
+      success: true,
+      student,
+      totalPending: dueFee-student.fee,
+      feeDetails
+    });
+  } catch (error) {
+    console.error("Error retrieving fee details for student:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
