@@ -249,8 +249,8 @@ exports.getFeeDetailsByStudent = async (req, res) => {
     const enrollmentDate = moment(student.enrollment_date);
     const courseDuration = student.course_id.course_duration; // Course duration in months
     const courseEndDate = moment(enrollmentDate).add(courseDuration, 'months'); // Calculate the course end date
-    const currentDate = moment(); // Current date
-
+    const currentDate = moment(new Date()); // Current date
+console.log("current date is ", currentDate)
     // Initialize an empty array to store fee details for each month
     const feeDetails = [];
 
@@ -260,10 +260,11 @@ exports.getFeeDetailsByStudent = async (req, res) => {
     const dueFee = Math.min(monthsEnrolled, student.course_id.course_duration) * ((student.course_id.totalFee)/(student.course_id.course_duration));
     // console.log(dueFee, " is total due Fee  and total paid is ", student.fee)
     // Iterate over each month from the enrollment date to the current date or course end date (whichever is earlier)
-    let month = enrollmentDate.clone().add(1, 'month');
+    let month = enrollmentDate.clone();
     while (month.isBefore(moment.min(currentDate, courseEndDate), 'month')) {
-      const startOfMonth = month.clone().startOf('month').toDate();
-      const endOfMonth = month.clone().endOf('month').toDate();
+      const startOfMonth = month;
+      const endOfMonth = month.clone().add(1, 'month');
+      // console.log("for student ", student.name, " with enrollemnt date ", student.enrollment_date, " 1 month is complete on ",endOfMonth)
 
       // Check if payment has been made for the current month
       const feeRecord = await FeeCollection.findOne({
@@ -279,7 +280,7 @@ exports.getFeeDetailsByStudent = async (req, res) => {
 
       // If feeRecord exists, the fee was paid, otherwise, it's unpaid
       feeDetails.push({
-        month: month.format("YYYY-MM"),
+        month: `${month.format("YYYY-MM-DD")} - ${endOfMonth.format("YYYY-MM-DD")}`,
         feePaid: feeRecord ? true : false,
         amountPaid: feeRecord ? feeRecord.amount_paid : 0,
         monthlyFeeAmount,

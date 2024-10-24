@@ -108,7 +108,7 @@ exports.getStudentPastPayments = async (req, res) => {
         student_id: studentId,
         course_id: course._id,
         payment_date: { $gte: enrollmentDate.toDate(), $lte: endDate.toDate() } // Convert moment objects to Date
-      });
+      }).sort({payment_date: -1});
 
       // console.log(feeCollections)
       
