@@ -81,9 +81,6 @@ exports.getFeeCollection = async (req, res) => {
 };
 
 
-
-
-
 // GET /api/fee-collection/payment-status/:month
 // GET /api/fee-collection/payment-status/:month
 
