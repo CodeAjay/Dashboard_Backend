@@ -4,7 +4,7 @@ const clerkFeeCollection = require("../../controllers/clerk/feeCollection");
 
 router.post("/", clerkFeeCollection.createFeeCollection);
 router.post("/fees", clerkFeeCollection.getFeeCollection);
-router.get("/payment-status/:id", clerkFeeCollection.getFeeCollectionById);
+router.get("/payment-status/:month", clerkFeeCollection.getFeeCollectionById);
 router.get("/:id", clerkFeeCollection.getFeeDetailsByStudent);
 // router.put("/:id", courseController.editCourse);
 // router.delete("/:id", feeCollection.deleteFeeCollection);

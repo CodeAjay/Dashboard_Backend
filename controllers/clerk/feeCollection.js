@@ -128,13 +128,11 @@ exports.getFeeCollectionById = async (req, res) => {
 };
 
 
-// Create a new fee collection entry
 exports.createFeeCollection = async (req, res) => {
   try {
     const { student_id, course_id, amount_paid, payment_date, payment_method } = req.body;
-    const clerkInstituteId = req.user.institute_id; // Assuming req.user contains the logged-in clerk's info
+    const clerkInstituteId = req.user.institute_id;
 
-    // Check if all required fields are provided
     if (!student_id || !course_id || !amount_paid || !payment_date || !payment_method) {
       return res.status(400).json({
         success: false,
@@ -142,24 +140,7 @@ exports.createFeeCollection = async (req, res) => {
       });
     }
 
-    // Normalize the payment_date format
-    const dateParts = payment_date.split('-');
-    if (dateParts.length !== 3) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid payment_date format. Please provide a valid date in YYYY-MM-DD format."
-      });
-    }
-
-    // Pad month and day with leading zeros if needed
-    const year = dateParts[0];
-    const month = String(dateParts[1]).padStart(2, '0'); // Ensure two digits
-    const day = String(dateParts[2]).padStart(2, '0'); // Ensure two digits
-
-    const normalizedDate = `${year}-${month}-${day}`;
-
-    // Validate payment_date using moment
-    const formattedPaymentDate = moment(normalizedDate, "YYYY-MM-DD", true);
+    const formattedPaymentDate = moment(payment_date, "YYYY-MM-DD", true);
     if (!formattedPaymentDate.isValid()) {
       return res.status(400).json({
         success: false,
@@ -167,7 +148,6 @@ exports.createFeeCollection = async (req, res) => {
       });
     }
 
-    // Find the student and populate the course and institute data
     const student = await Student.findById(student_id)
       .populate("course_id")
       .populate("institute_id");
@@ -176,7 +156,6 @@ exports.createFeeCollection = async (req, res) => {
       return res.status(404).json({ success: false, message: "Student not found" });
     }
 
-    // Ensure the clerk can only add fee collection for students in their institute
     if (student.institute_id._id.toString() !== clerkInstituteId.toString()) {
       return res.status(403).json({
         success: false,
@@ -184,84 +163,72 @@ exports.createFeeCollection = async (req, res) => {
       });
     }
 
-    // Calculate course end date based on enrollment date and course duration
     const courseEndDate = moment(student.enrollment_date).add(student.course_id.course_duration, 'months');
-
-    // Ensure payment_date is within the enrollment and course end date range
+    
     if (formattedPaymentDate.isBefore(moment(student.enrollment_date)) || formattedPaymentDate.isAfter(courseEndDate)) {
       return res.status(400).json({
         success: false,
         message: `Payment date must be between ${moment(student.enrollment_date).toISOString()} and ${courseEndDate.toISOString()}.`
       });
-    } else if (course_id !== student.course_id._id.toString()) { // Ensure comparison is made with string
+    } else if (course_id !== student.course_id._id.toString()) {
       return res.status(400).json({ success: false, message: "Payment can only be made for the student's enrolled course." });
     }
 
-    // Check if a payment has already been made for the same month
-    const existingPayment = await FeeCollection.findOne({
+    // Determine the first unpaid month after enrollment
+    const firstPaymentMonth = moment(student.enrollment_date).startOf('month').add(1, 'month');
+    const existingPayments = await FeeCollection.find({
       student_id,
       course_id,
       payment_date: {
-        $gte: moment(formattedPaymentDate).startOf('month'),
-        $lte: moment(formattedPaymentDate).endOf('month')
+        $gte: firstPaymentMonth.toDate(), // Only consider payments after the enrollment month
+      },
+    });
+
+    // Create a set of months that have been paid
+    const paidMonths = new Set(existingPayments.map(payment => moment(payment.payment_date).startOf('month').format('YYYY-MM')));
+
+    // Allocate payments starting from the first unpaid month
+    let remainingAmount = amount_paid;
+    let currentPaymentDate = firstPaymentMonth;
+
+    while (remainingAmount > 0) {
+      if (paidMonths.has(currentPaymentDate.format('YYYY-MM'))) {
+        // If this month has already been paid, move to the next month
+        currentPaymentDate.add(1, 'month');
+        continue;
       }
-    });
 
-    if (existingPayment) {
-      return res.status(400).json({
-        success: false,
-        message: "A payment for this student in the same month has already been made."
-      });
-    }
+      // Create a fee collection entry for the current month
+      const monthlyPaymentAmount = Math.min(remainingAmount, student.course_id.totalFee / student.course_id.course_duration);
 
-    // Calculate the monthly payment amount (assuming it's stored in the course model)
-    const monthlyPaymentAmount = student.course_id.totalFee / student.course_id.course_duration;
-
-    // Create the fee collection for the current payment
-    const newFeeCollection = new FeeCollection({
-      student_id,
-      course_id,
-      amount_paid: monthlyPaymentAmount,
-      payment_date: formattedPaymentDate.toDate(), // Store the validated date
-      payment_method
-    });
-
-    // Save the current payment
-    await newFeeCollection.save();
-
-    // Update the student's total fee paid
-    student.fee += (student.totalFeePaid || 0) + amount_paid;
-    await student.save();
-
-    // If the payment exceeds the monthly amount, create additional records for future months
-    let remainingAmount = amount_paid - monthlyPaymentAmount;
-    let nextPaymentDate = moment(formattedPaymentDate);
-
-    while (remainingAmount >= monthlyPaymentAmount) {
-      nextPaymentDate = nextPaymentDate.add(1, 'month');
-
-      const nextFeeCollection = new FeeCollection({
+      const feeCollection = new FeeCollection({
         student_id,
         course_id,
         amount_paid: monthlyPaymentAmount,
-        payment_date: nextPaymentDate.toDate(),
-        payment_method
+        payment_date: currentPaymentDate.toDate(),
+        payment_method,
       });
 
-      await nextFeeCollection.save();
-      remainingAmount -= monthlyPaymentAmount; // Subtract the monthly payment from the remaining amount
+      await feeCollection.save();
+      remainingAmount -= monthlyPaymentAmount;
+
+      // Move to the next month
+      currentPaymentDate.add(1, 'month');
     }
+
+    student.fee += parseInt(amount_paid); // Assuming `fee` is the field that tracks total paid fees
+    await student.save();
 
     return res.status(201).json({
       success: true,
       message: "Fee collection record created successfully",
-      data: newFeeCollection
     });
   } catch (error) {
     console.error("Error creating fee collection:", error);
     return res.status(500).json({ success: false, message: "Failed to create fee collection" });
   }
 };
+
 
 
 
@@ -293,7 +260,7 @@ exports.getFeeDetailsByStudent = async (req, res) => {
     const dueFee = Math.min(monthsEnrolled, student.course_id.course_duration) * ((student.course_id.totalFee)/(student.course_id.course_duration));
     // console.log(dueFee, " is total due Fee  and total paid is ", student.fee)
     // Iterate over each month from the enrollment date to the current date or course end date (whichever is earlier)
-    let month = enrollmentDate.clone();
+    let month = enrollmentDate.clone().add(1, 'month');
     while (month.isBefore(moment.min(currentDate, courseEndDate), 'month')) {
       const startOfMonth = month.clone().startOf('month').toDate();
       const endOfMonth = month.clone().endOf('month').toDate();
