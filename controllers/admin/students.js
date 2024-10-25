@@ -18,7 +18,7 @@ exports.getStudents = async (req, res) => {
 
 exports.postStudents = async (req, res) => {
   try {
-      const { name, email, course_id, institute_id, fee, imageUrl, mobile, fathersName, address, enrollment_date } = req.body;
+      const { name, email, course_id, institute_id, fee, imageUrl, mobile, fathersName, address, enrollment_date,fmobile } = req.body;
 
     // Check if a student with the same email or mobile already exists
     const existingStudent = await Student.findOne({
@@ -37,7 +37,7 @@ exports.postStudents = async (req, res) => {
           fee,
           imageUrl,
           mobile, fathersName,
-          address,enrollment_date
+          address,enrollment_date,fmobile
       });
 
       await student.save();
@@ -58,7 +58,7 @@ exports.postStudents = async (req, res) => {
 exports.editStudents=async(req, res)=>{
     try {
         const { id } = req.params;
-        const { name, email, institute_id, course_id, imageUrl, mobile, fathersName, address, enrollment_date} = req.body;
+        const { name, email, institute_id, course_id, imageUrl, mobile, fathersName, address, enrollment_date,fmobile} = req.body;
     
         const updatedStudent = await Student.findByIdAndUpdate(
           id,
@@ -69,7 +69,7 @@ exports.editStudents=async(req, res)=>{
             course_id,
             imageUrl,
             mobile, fathersName,
-            address,enrollment_date
+            address,enrollment_date,fmobile
           },
           { new: true }
         );

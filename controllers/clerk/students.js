@@ -33,7 +33,7 @@ exports.postStudents = async (req, res) => {
       req.body.institute_id = user.institute_id; // Set institute_id from the clerk's profile
     }
 
-    const { name, email, course_id, institute_id, fee, imageUrl, mobile, fathersName, address, enrollment_date } = req.body;
+    const { name, email, course_id, institute_id, fee, imageUrl, mobile, fathersName, address, enrollment_date, fmobile } = req.body;
 
     // Check if a student with the same email or mobile already exists
     const existingStudent = await Student.findOne({
@@ -55,6 +55,7 @@ exports.postStudents = async (req, res) => {
       fathersName,
       address,
       enrollment_date,
+      fmobile
     });
 
     await student.save();
@@ -82,7 +83,7 @@ exports.editStudents = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized to edit this student" });
     }
 
-    const { name, email, institute_id, course_id, imageUrl, mobile, fathersName, address, enrollment_date } = req.body;
+    const { name, email, institute_id, course_id, imageUrl, mobile, fathersName, address, enrollment_date,fmobile } = req.body;
 
     const updatedStudent = await Student.findByIdAndUpdate(
       id,
@@ -96,6 +97,7 @@ exports.editStudents = async (req, res) => {
         fathersName,
         address,
         enrollment_date,
+        fmobile
       },
       { new: true }
     );
