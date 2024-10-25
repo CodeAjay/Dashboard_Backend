@@ -20,6 +20,15 @@ exports.postStudents = async (req, res) => {
   try {
       const { name, email, course_id, institute_id, fee, imageUrl, mobile, fathersName, address, enrollment_date } = req.body;
 
+    // Check if a student with the same email or mobile already exists
+    const existingStudent = await Student.findOne({
+      $or: [{ email }, { mobile }]
+    });
+
+    if (existingStudent) {
+      return res.status(400).json({ message: "A student with this email or mobile number already exists." });
+    }
+
       const student = new Student({
           name,
           email,
