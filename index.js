@@ -25,13 +25,15 @@ const courseRoutes=require("./routes/adminRoutes/coursesRoutes")
 const studentRoutes=require("./routes/adminRoutes/studentsRoutes")
 const instituteRoutes=require("./routes/adminRoutes/instituteRoutes")
 const feeCollectionRoutes=require("./routes/adminRoutes/feeCollection")
+const enquiryRoutes=require("./routes/adminRoutes/enquiryRoutes")
 
 // Admin-only routes
 app.use("/announcements", authenticate, authorizeRoles('admin'), announceRoutes);
 app.use("/courses", authenticate, authorizeRoles('admin'), courseRoutes);
-app.use("/students", authenticate, authorizeRoles('admin'), studentRoutes); // Admin and clerk
+app.use("/students", authenticate, authorizeRoles('admin'), studentRoutes);
 app.use("/institutes", authenticate, authorizeRoles('admin'), instituteRoutes);
-app.use("/fee-collection", authenticate, authorizeRoles('admin'), feeCollectionRoutes); // Admin and clerk
+app.use("/fee-collection", authenticate, authorizeRoles('admin'), feeCollectionRoutes);
+app.use("/enquiry", authenticate, authorizeRoles('admin'), enquiryRoutes); 
 
 
 
@@ -42,6 +44,7 @@ const clerkCourseRoutes=require("./routes/clerkRoutes/coursesRoutes")
 const clerkStudentRoutes=require("./routes/clerkRoutes/studentRoutes")
 const clerkinstituteRoutes=require("./routes/clerkRoutes/institutesRoutes")
 const clerkFeeCollectionRoutes=require("./routes/clerkRoutes/feeRoutes")
+const clerkEnquiryRoutes=require("./routes/clerkRoutes/enquiryRoutes")
 
 // Clerk routes
 app.use("/clerk/announcements", authenticate, authorizeRoles("clerk"), clerkannounceRoutes);
@@ -49,6 +52,7 @@ app.use("/clerk/courses", authenticate, authorizeRoles("clerk"), clerkCourseRout
 app.use("/clerk/students", authenticate, authorizeRoles("clerk"), clerkStudentRoutes); // Admin and clerk
 app.use("/clerk/institutes", authenticate, authorizeRoles("clerk"), clerkinstituteRoutes);
 app.use("/clerk/fee-collection", authenticate, authorizeRoles("clerk"), clerkFeeCollectionRoutes); // Admin and clerk
+app.use("/clerk/enquiry", authenticate, authorizeRoles("clerk"), clerkEnquiryRoutes); // Admin and clerk
 
 
 const students=require("./routes/studentsRoutes/student")
