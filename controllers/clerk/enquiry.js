@@ -29,7 +29,7 @@ exports.postEnquiries = async (req, res) => {
       req.body.institute_id = user.institute_id;
     }
 
-    const { name, email, course_id, institute_id, enquiry, mobile, address, enquiry_date, DOB } = req.body;
+    const { name, email, course_id, imageUrl, institute_id, enquiry, mobile, address, DOB } = req.body;
 
     const existingEnquiry = await Enquiry.findOne({ email });
     if (existingEnquiry) {
@@ -39,7 +39,7 @@ exports.postEnquiries = async (req, res) => {
     const enquiryData = new Enquiry({
       name,
       email,
-      course_id,
+      course_id,imageUrl,
       institute_id,
       enquiry,
       mobile,
