@@ -4,7 +4,7 @@ const enquiryController = require("../../controllers/clerk/enquiry");
 
 router.get("/", enquiryController.getEnquiries);
 router.post("/", enquiryController.postEnquiries);
-router.post("/convert", enquiryController.convertToAdmission);
+router.post("/convert/:id", enquiryController.convertToAdmission);
 router.delete("/", enquiryController.deleteEnquiries);
 router.put("/:id", enquiryController.editEnquiries);
 router.delete("/old", enquiryController.deleteOldEnquiries);
