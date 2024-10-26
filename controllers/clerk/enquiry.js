@@ -7,6 +7,7 @@ exports.getEnquiries = async (req, res) => {
     let query = {};
     if (user.role === "clerk") {
       query.institute_id = user.institute_id; // Filter by institute_id
+      query.converted = false;
     }
 
     // Retrieve enquiries based on user role and populate related fields
@@ -148,6 +149,7 @@ exports.convertToAdmission = async (req, res) => {
         institute_id: enquiry.institute_id,
         mobile: enquiry.mobile,
         address: enquiry.address,
+        imageUrl:enquiry.imageUrl,
         enrollment_date: new Date(),
         // enquiry_id: enquiry._id, // Storing reference to original enquiry
       });
