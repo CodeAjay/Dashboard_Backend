@@ -26,8 +26,8 @@ const FeeCollectionSchema = new mongoose.Schema({
   },
   payment_status: {
     type: String,
-    enum: ['completed', 'pending', 'failed'],
-    default: 'completed',
+    enum: ['completed', 'pending', 'failed', 'approved'],
+    default: 'pending',
   }
 }, { timestamps: true });
 

@@ -207,6 +207,7 @@ exports.createFeeCollection = async (req, res) => {
         amount_paid: monthlyPaymentAmount,
         payment_date: currentPaymentDate.toDate(),
         payment_method,
+        payment_status:"pending"
       });
 
       await feeCollection.save();

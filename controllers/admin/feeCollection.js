@@ -277,7 +277,8 @@ exports.createFeeCollection = async (req, res) => {
       course_id,
       amount_paid: monthlyPaymentAmount,
       payment_date: formattedPaymentDate.toDate(), // Store the validated date
-      payment_method
+      payment_method,
+      payment_status: "pending"
     });
 
     // Save the current payment
@@ -321,6 +322,7 @@ exports.createFeeCollection = async (req, res) => {
 
 
 exports.getFeeDetailsByStudent = async (req, res) => {
+  console.log("get fee details by student is called")
   const studentId = req.params.id;
 
   // console.log(studentId, "student id")
@@ -387,5 +389,56 @@ exports.getFeeDetailsByStudent = async (req, res) => {
   } catch (error) {
     console.error("Error retrieving fee details for student:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+// Get all pending fee collections awaiting approval
+exports.getPendingFeeCollections = async (req, res) => {
+  console.log("get Pending fee collection is called");
+  try {
+    const pendingFeeCollections = await FeeCollection.find({ payment_status: 'pending' })
+      .populate('student_id') // Populate student name
+      .populate('course_id') // Populate course name
+    // Check if collections are found
+    if (!pendingFeeCollections) {
+      return res.status(404).json({ error: "No pending fee collections found" });
+    }
+
+    // Send JSON response
+    res.status(200).json({ pendingFeeCollections });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+
+    // Always send JSON for errors as well
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
+exports.approveFeeCollections = async (req, res) => {
+  try {
+    const { feeCollectionIds } = req.body; // Array of FeeCollection IDs to approve
+
+    if (!feeCollectionIds || !feeCollectionIds.length) {
+      return res.status(400).json({ success: false, message: "Please provide fee collection IDs to approve." });
+    }
+
+    // Update the status of the specified fee collections to "approved"
+    const result = await FeeCollection.updateMany(
+      { _id: { $in: feeCollectionIds }, payment_status: "pending" },
+      { $set: { payment_status: "approved" } }
+    );
+
+    // Check if any documents were actually updated
+    if (result.modifiedCount === 0) {
+      return res.status(400).json({ success: false, message: "No pending fee collections found for approval." });
+    }
+
+    res.json({ success: true, message: "Fee collections approved successfully." });
+  } catch (error) {
+    console.error("Error approving fee collections:", error);
+    res.status(500).json({ success: false, message: "Failed to approve fee collections" });
   }
 };
