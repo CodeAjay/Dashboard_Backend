@@ -251,7 +251,7 @@ exports.getFeeDetailsByStudent = async (req, res) => {
     const courseDuration = student.course_id.course_duration; // Course duration in months
     const courseEndDate = moment(enrollmentDate).add(courseDuration, 'months'); // Calculate the course end date
     const currentDate = moment(new Date()); // Current date
-console.log("current date is ", currentDate)
+    console.log("current date is ", currentDate)
     // Initialize an empty array to store fee details for each month
     const feeDetails = [];
 
@@ -267,6 +267,8 @@ console.log("current date is ", currentDate)
       const endOfMonth = month.clone().add(1, 'month');
       // console.log("for student ", student.name, " with enrollemnt date ", student.enrollment_date, " 1 month is complete on ",endOfMonth)
 
+
+      if (endOfMonth > currentDate) break;
       // Check if payment has been made for the current month
       const feeRecord = await FeeCollection.findOne({
         student_id: studentId,
