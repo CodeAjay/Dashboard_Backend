@@ -47,7 +47,7 @@ router.post('/login', async (req, res) => {
   try {
     let user;
     let isMatch;
-
+    // let logged_in = true;
     // Check if the user is admin/clerk or student
     if (username.startsWith('admin') || username.startsWith('clerk')) {
       // Admin/Clerk: Use User model
@@ -64,6 +64,7 @@ router.post('/login', async (req, res) => {
       user = await Student.findOne({ email: username });
       
       if (!user) {
+        console.log("Invalid credentials")
         return res.status(401).json({ message: 'Invalid credentials' });
       }
 
