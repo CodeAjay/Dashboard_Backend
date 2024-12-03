@@ -11,7 +11,9 @@ const courseSchema = new Schema({
   },
   course_duration:Number,
   studentsEnrolled: {type: Number, default:0},
-  totalFee: {type: Number, default:0}
+  totalFee: {type: Number, default:0},
+  admission_fee: {type: Number, default:0}
+  
 });
 
 module.exports = mongoose.model("Course", courseSchema);

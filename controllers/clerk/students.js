@@ -1,4 +1,7 @@
+const FeeCollection = require("../../models/feeCollection");
 const Student = require("../../models/student");
+const moment = require('moment'); 
+
 
 exports.getStudents = async (req, res) => {
   try {
@@ -54,7 +57,8 @@ exports.postStudents = async (req, res) => {
       fathersName,
       address,
       enrollment_date,
-      fmobile,DOB
+      fmobile,DOB,
+      admision_fee:true
     });
 
     await student.save();
@@ -63,6 +67,17 @@ exports.postStudents = async (req, res) => {
     const populatedStudent = await Student.findById(student._id)
       .populate("institute_id")
       .populate("course_id");
+
+      const newFeeCollection = new FeeCollection({
+        student_id : populatedStudent._id,
+        course_id : populatedStudent.course_id._id,
+        amount_paid: course_admision_fee,
+        payment_date: moment(), 
+        payment_method : "cash",
+        payment_status: "approved"
+      });
+      
+    await newFeeCollection.save();
 
     res.status(201).json(populatedStudent);
   } catch (error) {

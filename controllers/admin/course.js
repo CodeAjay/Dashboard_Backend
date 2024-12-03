@@ -33,7 +33,7 @@ exports.getCourses = async (req, res) => {
 
 exports.postCourses = async (req, res) => {
   try {
-    const { courseName,imageUrl, institute_id, studentsEnrolled, totalFee,course_duration } = req.body;
+    const { courseName,imageUrl, institute_id, studentsEnrolled, totalFee,course_duration,admission_fee } = req.body;
 
     const newCourse = new Course({
       courseName,
@@ -41,7 +41,8 @@ exports.postCourses = async (req, res) => {
       institute_id,
       studentsEnrolled,
       totalFee,
-      course_duration
+      course_duration,
+      admission_fee
     });
 
     await newCourse.save();
