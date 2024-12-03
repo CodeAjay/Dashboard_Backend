@@ -49,7 +49,7 @@ exports.postCourses = async (req, res) => {
       req.body.institute_id = user.institute_id;
     }
 
-    const { courseName, imageUrl, institute_id, studentsEnrolled, totalFee, course_duration } = req.body;
+    const { courseName, imageUrl, institute_id, studentsEnrolled, totalFee, course_duration ,admission_fee} = req.body;
 
     const newCourse = new Course({
       courseName,
@@ -58,6 +58,7 @@ exports.postCourses = async (req, res) => {
       studentsEnrolled,
       totalFee,
       course_duration,
+      admission_fee
     });
 
     await newCourse.save();
