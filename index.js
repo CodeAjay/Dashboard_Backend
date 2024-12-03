@@ -13,7 +13,7 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
-const loginRoute=require("./routes/authentication/authenticatino")
+const loginRoute=require("./routes/authentication/authentication")
 
 app.use("/login", loginRoute); // Public route to log in
 

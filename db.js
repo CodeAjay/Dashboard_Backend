@@ -4,17 +4,22 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 // Replace with your MongoDB connection string
-const mongoURI =
-  process.env.DBURL
-
+const mongoURI = process.env.DBURL
 mongoose.connect(mongoURI, {
-  useNewUrlParser: true, // Optional, can be removed
-  useUnifiedTopology: true, // Optional, can be removed  
+  useNewUrlParser: true, 
+  useUnifiedTopology: true, 
   writeConcern: {
     w: 'majority',
-    wtimeout: 1000  // Adjust this timeout as needed
+    wtimeout: 1000, 
   }
 })
+.then(() => {
+  console.log("MongoDB connected successfully");
+})
+.catch((error) => {
+  console.error("Error connecting to MongoDB:", error);  
+});
+
 
 const db = mongoose.connection;
 
