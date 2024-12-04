@@ -60,7 +60,9 @@ const students=require("./routes/studentsRoutes/student")
 // Students Routes
 app.use("/api", authenticate, authorizeRoles("student"), students)
 
-
+app.get("/",(req,res)=>{
+res.status(200).json({hello:"Hello Server"})
+})
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
