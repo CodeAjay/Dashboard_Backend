@@ -8,8 +8,30 @@ const {authenticate, authorizeRoles } = require("./middleware/authentication")
 const app = express();
 const port = 3000;
 
+// Define allowed origins
+const allowedOrigins = [
+  'http://localhost:5173/', // Local URL
+  'https://dashboard-front-end-two.vercel.app/'  // Remote URL
+];
 
-app.use(cors());
+// CORS options
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Check if the origin is in the allowed list
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // Enable credentials (cookies, etc.)
+};
+
+// Use CORS middleware
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 
