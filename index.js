@@ -10,8 +10,8 @@ const port = 3000;
 
 // Define allowed origins
 const allowedOrigins = [
-  'http://localhost:5173/', // Local URL
-  'https://dashboard-front-end-two.vercel.app/'  // Remote URL
+  'http://localhost:5173', // Local URL
+  'https://dashboard-front-end-two.vercel.app'  // Remote URL
 ];
 
 // CORS options
