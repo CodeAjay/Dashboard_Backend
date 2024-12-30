@@ -47,18 +47,21 @@ router.post('/login', async (req, res) => {
   try {
     let user;
     let isMatch;
+    
+    user = await User.findOne({ username });
     // let logged_in = true;
     // Check if the user is admin/clerk or student
-    if (username.startsWith('admin') || username.startsWith('clerk')) {
+    if (user) {
       // Admin/Clerk: Use User model
-      user = await User.findOne({ username });
       
-      if (!user) {
-        return res.status(401).json({ message: 'Invalid credentials' });
+      // if (!user) {
+      //   return res.status(401).json({ message: 'Invalid credentials' });
+      // }
+      if(user.role==="admin" || user.role==="clerk"){
+        isMatch = await bcrypt.compare(password, user.password);
       }
 
       // Use bcrypt for admin and clerk password comparison
-      isMatch = await bcrypt.compare(password, user.password);
     } else {
       // Student: Use Student model
       user = await Student.findOne({ email: username });
